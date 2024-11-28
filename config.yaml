@@ -1,0 +1,26 @@
+train:
+  learning_rate: 0.001
+  epochs: 100_000
+  key: 0
+
+dataset:
+  y0: [2.09439510239, 0.0] # Initial conditions 
+  t_span: [0, 20]              # Time span for simulation
+  dt: 0.01
+  b: 0.3
+  m: 1.0
+  l: 1.0
+  g: 9.81
+  initial_angle: 2.09439510239  # 2π/3
+  initial_velocity: 0.0
+  #time_span: [0, 20]
+  #time_step: 0.01
+
+
+model:
+  features: [16, 16, 16]
+
+output_dirs:
+  loss_plots: ""
+  prediction_plots: ""
+  ode_loss: ""

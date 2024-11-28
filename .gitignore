@@ -1,7 +1,7 @@
 _pycache_/
-
-
-config.yaml
+outputs/
 test.py
+compare_jit.py 
+
 
 
