@@ -210,5 +210,5 @@ if __name__ == "__main__":
         t_rk,
         y_rk,
         save_dir="plots\generated_data",
-        plot_filename="custom_plot_name.png",
+        plot_filename="generated_data.png",
     )
