@@ -1,6 +1,6 @@
 import jax
 import jax.numpy as jnp
-from jax import grad, vmap
+from flax.training.early_stopping import EarlyStopping
 from data_generator import solve_pendulum_rk
 from train import MLP, create_train_state
 import matplotlib.pyplot as plt
@@ -82,17 +82,24 @@ def ode_train(key, model, learning_rate, epochs, data):
         "ode_loss": [],
     }
     t, y = data
+    early_stop = EarlyStopping(min_delta=1e-3, patience=2)
     for epoch in range(epochs):
         # Training step
         batch = (t[:, None], y[:, 0][:, None])
         state = ode_train_step(state, batch)
         loss = state.metrics["loss"]
+        early_stop = early_stop.update(loss)
 
         # Store metrics
         ode_metrics_history["ode_loss"].append(loss)
 
         if epoch % 10 == 0:
             print(f"Epoch: {epoch}, ODE Loss: {loss}")
+
+            # Check for early stopping
+        if early_stop.should_stop:
+            print("Met early stopping criteria, breaking...")
+            break
 
     return state, ode_metrics_history
 

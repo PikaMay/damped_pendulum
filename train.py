@@ -3,6 +3,7 @@ import jax
 import optax
 import jax.numpy as jnp
 from flax.training import train_state
+from flax.training.early_stopping import EarlyStopping
 from dataclasses import replace
 import matplotlib.pyplot as plt
 from data_generator import gen_data, solve_pendulum_rk
@@ -104,11 +105,13 @@ def train(key, model, learning_rate, epochs, data):
         "train_loss": [],
         "test_loss": [],
     }
+    early_stop = EarlyStopping(min_delta=1e-3, patience=2)
     for epoch in range(epochs):
         # Training step
         train_batch = (t_train[:, None], y_train[:, None])
         state = train_step(state, train_batch)
         train_loss = state.metrics["loss"]
+        early_stop = early_stop.update(train_loss)
 
         # Validation step
         val_batch = (t_test[:, None], y_test[:, None])
@@ -119,6 +122,12 @@ def train(key, model, learning_rate, epochs, data):
         metrics_history["test_loss"].append(val_loss)
         if epoch % 10 == 0:
             print(f"Epoch: {epoch}, Train Loss: {train_loss}, Val Loss: {val_loss}")
+
+        # Check for early stopping
+        if early_stop.should_stop:
+            print("Met early stopping criteria, breaking...")
+            break
+
     return state, metrics_history
 
 
@@ -145,7 +154,7 @@ def plot_train_and_test_losses(metrics_history, save_dir=""):
         color="blue",
         linestyle="-",
         marker="o",
-        markersize=3,
+        markersize=2,
     )
     plt.title("Training Loss over Epochs")
     plt.xlabel("Epochs")
@@ -165,7 +174,7 @@ def plot_train_and_test_losses(metrics_history, save_dir=""):
         color="red",
         linestyle="--",
         marker="x",
-        markersize=3,
+        markersize=2,
     )
     plt.title("Test Loss over Epochs")
     plt.xlabel("Epochs")
